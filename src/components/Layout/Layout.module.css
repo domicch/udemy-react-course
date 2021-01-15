@@ -1,0 +1,8 @@
+/**
+ * Latest create-react-app built-in support of CSS module
+ * Keep in mind that file name conventions should be name.module.css in order to work
+ * https://create-react-app.dev/docs/adding-a-css-modules-stylesheet/
+ **/
+.Content {
+    margin-top: 72px;
+}
