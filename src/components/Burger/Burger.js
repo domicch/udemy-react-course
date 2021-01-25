@@ -5,6 +5,7 @@ import BurgerIngredient from './BurgerIngredient/BurgerIngredient';
 const burger = (props) => {
 
     let transformedIngredients = Object.keys(props.ingredients)
+    .sort()
     .map(igKey => {
         return [...Array(props.ingredients[igKey])]
         .map((_,i) => <BurgerIngredient key={igKey+i} type={igKey} />)

@@ -7,7 +7,7 @@ const buildControls = (props) => (
     <div className={classes.BuildControls}>
         <p>Total price: {props.totalPrice.toFixed(2)}</p>
         {
-        Object.keys(props.ingredients).map(ingrad => (
+        Object.keys(props.ingredients).sort().map(ingrad => (
             <BuildControl
                 key={ingrad}
                 label={StringUtil.captalise(ingrad)}

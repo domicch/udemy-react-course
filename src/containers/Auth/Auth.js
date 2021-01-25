@@ -13,8 +13,8 @@ import {checkFormFieldValid} from '../../utility/utility';
 
 class Auth extends Component {
     state = {
-        controls: {
-            email: {
+        controls: new Map([
+            ['email', {
                 elementType: 'input',
                 elementConfig: {
                     type: 'email',
@@ -27,8 +27,8 @@ class Auth extends Component {
                 },
                 valid: false,
                 modified: false
-            },
-            password: {
+            }],
+            ['password', {
                 elementType: 'input',
                 elementConfig: {
                     type: 'password',
@@ -41,8 +41,8 @@ class Auth extends Component {
                 },
                 valid: false,
                 modified: false
-            }
-        },
+            }]
+        ]),
         isRegister: false
     }
 
@@ -53,23 +53,32 @@ class Auth extends Component {
     }
 
     inputChangedHandler = (event, controlName) => {
-        const updatedControls = {
-            ...this.state.controls,
-            [controlName]: {
-                ...this.state.controls[controlName],
-                value: event.target.value,
-                valid: checkFormFieldValid(event.target.value, this.state.controls[controlName].validation),
-                modified: true
-            }
-        };
+        const updatedControls = new Map(this.state.controls);
+        
+        updatedControls.set(controlName, {
+            ...this.state.controls.get(controlName),
+            value: event.target.value,
+            valid: checkFormFieldValid(event.target.value, this.state.controls.get(controlName).validation),
+            modified: true
+        });
+        
+        // {
+        //     ...this.state.controls,
+        //     [controlName]: {
+        //         ...this.state.controls[controlName],
+        //         value: event.target.value,
+        //         valid: checkFormFieldValid(event.target.value, this.state.controls[controlName].validation),
+        //         modified: true
+        //     }
+        // };
 
         this.setState({controls: updatedControls});
     }
 
     submitHandler = (event) => {
         event.preventDefault();
-        this.props.onAuth(this.state.controls.email.value,
-            this.state.controls.password.value,
+        this.props.onAuth(this.state.controls.get('email').value,
+            this.state.controls.get('password').value,
             this.state.isRegister);
     }
 
@@ -82,10 +91,17 @@ class Auth extends Component {
     render () {
 
         const formElementsArray = [];
-        for (let key in this.state.controls){
+        // for (let key in this.state.controls){
+        //     formElementsArray.push({
+        //         id: key,
+        //         config: this.state.controls[key]
+        //     });
+        // }
+
+        for (let [key, value] of this.state.controls){
             formElementsArray.push({
                 id: key,
-                config: this.state.controls[key]
+                config: value
             });
         }
 

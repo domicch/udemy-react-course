@@ -19,7 +19,7 @@ const order = (props) => {
     });
 
     return (
-        <div className={classes.Order}>
+        <div className={classes.Order} onClick={props.clicked}>
             <p>Ingredients: {ingredientsOutput}</p>
             <p>Price: <strong>{props.totalPrice.toFixed(2)}</strong></p>
         </div>
