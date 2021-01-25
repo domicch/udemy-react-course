@@ -8,3 +8,6 @@ npm install axios --save
 
 # for routing
 npm install react-router-dom --save
+
+# redux
+npm install --save redux react-redux redux-thunk

@@ -1,10 +1,14 @@
 import React, {Component } from 'react';
+import {connect} from 'react-redux';
 
 import classes from './ContactData.module.css';
 import Button from '../../../components/UI/Button/Button';
 import axios from '../../../axios-orders';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
+import withErrorHandler from '../../../hoc/ErrorHandler/withErrorHandler';
+import * as actions from '../../../store/actions/index';
+import {checkFormFieldValid} from '../../../utility/utility';
 
 class ContactData extends Component {
     state = {
@@ -46,6 +50,7 @@ class ContactData extends Component {
                     required: true,
                     minLength: 3,
                     maxLength: 6,
+                    isNumeric: true
                 },
                 valid: false,
                 modified: false
@@ -71,7 +76,8 @@ class ContactData extends Component {
                 },
                 value: '',
                 validation: {
-                    required: true
+                    required: true,
+                    isEmail: true
                 },
                 valid: false,
                 modified: false
@@ -94,28 +100,6 @@ class ContactData extends Component {
         },
         isFormValid: false,
         loading: false
-    }
-
-    isValid(value, rules) {
-        let isValid = true;
-
-        if(!rules){
-            return true;
-        }
-
-        if(rules.required) {
-            isValid = value.trim() !== '' && isValid;
-        }
-
-        if(rules.minLength){
-            isValid = value.length >= rules.minLength && isValid;
-        }
-
-        if(rules.maxLength){
-            isValid = value.length <= rules.maxLength && isValid;
-        }
-
-        return isValid;
     }
 
     checkFormValid(form) {
@@ -149,27 +133,31 @@ class ContactData extends Component {
         }
 
         const order = {
-            ingredients: this.props.ingredients,
-            totalPrice: this.props.totalPrice,
+            ingredients: this.props.ings,
+            totalPrice: this.props.price,
             orderData: formData,
-            time: new Date()
+            time: new Date(),
+            userId: this.props.userId
         }
 
         this.setState({loading: true});
 
-        axios.post('/orders.json', order)
-            .then(response => {
-                this.setState({
-                    loading: false,
-                });
-                this.props.history.push("/");
-            })
-            .catch(error => {
-                this.setState({
-                    loading: false,
-                });
-            })
-        ;
+        // axios.post('/orders.json', order)
+        //     .then(response => {
+        //         this.setState({
+        //             loading: false,
+        //         });
+        //         this.props.history.push("/");
+        //     })
+        //     .catch(error => {
+        //         this.setState({
+        //             loading: false,
+        //         });
+        //     })
+        // ;
+
+        this.props.onOrderburger(order, this.props.token);
+
     }
 
     inputChangedHandler = (event, inputId) => {
@@ -183,7 +171,7 @@ class ContactData extends Component {
             ...updatedOrderForm[inputId]
         }
         updatedFormElement.value = event.target.value;
-        updatedFormElement.valid = this.isValid(updatedFormElement.value, updatedFormElement.validation);
+        updatedFormElement.valid = checkFormFieldValid(updatedFormElement.value, updatedFormElement.validation);
         updatedFormElement.modified = true;
         updatedOrderForm[inputId] = updatedFormElement;
         
@@ -225,7 +213,7 @@ class ContactData extends Component {
             </form>
         );
 
-        if(this.state.loading){
+        if(this.props.loading){
             form = <Spinner/>
         }
 
@@ -238,4 +226,20 @@ class ContactData extends Component {
     }
 }
 
-export default ContactData;
+const mapStateToProps = state => {
+    return {
+        ings: state.burgerBuilder.ingredients,
+        price: state.burgerBuilder.totalPrice,
+        loading: state.order.loading,
+        token: state.auth.token,
+        userId: state.auth.userId
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onOrderburger: (orderData, token) => dispatch(actions.purchaseBurger(orderData, token))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(ContactData, axios));
